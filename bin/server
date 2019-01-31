@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'yaml'
+require 'net/http'
+
+require 'thin'
+require 'sinatra'
+require 'mechanize'
+
+set :bind, '0.0.0.0'
+set :root, File.join(__dir__, '..')
+set :config, YAML.load_file(File.join(__dir__, '../config.yml'))
+
+def extract_dweets(page)
+  dweets = page.css('.dweet-feed .dweet-wrapper .dweet')
+  dweets.map do |dweet|
+    {
+      id: dweet.at_css('.canvas-iframe-container iframe')&.attr('id')&.to_i,
+      code: dweet.at_css('.dweet-code textarea.code-input')&.text
+    }
+  end
+end
+
+def get_awesomed_dweets(username)
+  agent = Mechanize.new
+  dweets = []
+  page = agent.get("https://www.dwitter.net/u/#{username}/awesome")
+
+  if results = extract_dweets(page)
+    dweets.concat(results)
+  end
+
+  while link = page.link_with(css: 'div.dweet-feed a.next-page')
+    page = agent.click(link)
+
+    if results = extract_dweets(page)
+      dweets.concat(results)
+    end
+  end
+
+  dweets
+end
+
+$dweets = get_awesomed_dweets('mkroman')
+puts "Cached #{$dweets.count} dweets"
+
+get '/' do
+  @dweet = $dweets[rand($dweets.count)]
+  erb :dweet
+end
+

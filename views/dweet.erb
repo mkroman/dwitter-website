@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>m͓͋̓́ͅa̸̛͓͚̝̺ͬ̔ͣͤͨ̈̂̚͜e͎͔̬̪̭͚̘ͧ̔ͭ̕r̖͑ͨ̈́̇́ͣ͡o̲̭̳ͣ̂ͪ̉̔ͅ</title>
+
+    <meta charset="utf-8">
+
+    <style>
+      * { padding: 0; margin: 0; border: 0; outline: 0; overflow: hidden; }
+      canvas { width: 100%; background: white; }
+    </style>
+
+    <!-- This webpage is based on http://arkt.is/t/ (https://github.com/sigvef/arktis-tweet-demo)
+      and dwitter.net. The content is coming from my liked dweets on dwitter.net. -->
+  </head>
+
+  <body>
+    <canvas id='c'></canvas>
+
+    <script>
+      var c = document.getElementById('c');
+      c.width = 1920;
+      c.height = 1080;
+      var S = Math.sin;
+      var C = Math.cos;
+      var T = Math.tan;
+      var R = function (r, g, b, a) {
+        a = a === undefined ? 1 : a;
+        return "rgba("+(r|0)+","+(g|0)+","+(b|0)+","+a+")";
+      };
+      var x = c.getContext('2d');
+      var startT = +new Date();
+      // dweet: https://www.dwitter.net/d/<%= @dweet[:id] %>
+      function u(t) {
+        <%= @dweet[:code] %>
+      };
+      function loop() {
+        requestAnimationFrame(loop);
+        u((new Date() - startT) / 1000);
+      };
+      loop();
+    </script>
+  </body>
+</html>
